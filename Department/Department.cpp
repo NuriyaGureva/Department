@@ -213,12 +213,12 @@ int main()
 	cout << "\n-----------------------------\n";
 	cout << "Общая зарплата всего отдела:" << total_salary << endl;
 	cout << "\n-----------------------------\n";
-	ofstream fout("file.txt");
+	ofstream fout("file.txt",ios::in|ios::out);
 	for (int i = 0; i < sizeof(department) / sizeof(Employee*); i++)
 	{
 		fout.width(25);
 		fout << left;
-		fout << string(typeid(*department[i]).name()) + ":" << *department[i] << endl;
+		fout<< string(typeid(*department[i]).name()) + ":" << *department[i] << endl;
 	}
 	fout.close();
 	system("start notepad file.txt");
