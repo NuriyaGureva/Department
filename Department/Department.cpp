@@ -55,21 +55,38 @@ public:
 	virtual std::ostream& print(std::ostream& os)const
 	{
 		//return os << last_name << " " << first_name << " " << age << " лет";
-		os.width(10);
 		os << left;
+		os.width(10);
 		os << last_name;
 		os.width(10);
 		os << first_name;
 		os.width(3);
 		os << age << "лет";
 		return os;
+
+	}
+	virtual std::ofstream& print(std::ofstream& os)const
+	{
+		//return os << last_name << " " << first_name << " " << age << " лет";
+		os << left;
+		os.width(10);
+		os << last_name;
+		os.width(10);
+		os << first_name;
+		os.width(3);
+		os << age;
+		return os;
+
 	}
 };
 	ostream& operator<<(ostream& os, const Human& obj)
 	{
 		return obj.print(os);
 	}
-
+	ofstream& operator<<(ofstream& os, const Human& obj)
+	{
+		return obj.print(os);
+	}
 #define EMPLOYEE_TAKE_PARAMETERS const std::string& position
 #define  EMPLOYEE_GIVE_PARAMETERS position
 	class Employee :public Human
@@ -100,8 +117,16 @@ public:
 		std::ostream& print(std::ostream& os)const
 		{
 			Human::print(os) << " ";
-			return os << position;
-
+			os. width(10);
+			os << position;
+			return os;
+		}
+		std::ofstream& print(std::ofstream& os)const
+		{
+			Human::print(os) << " ";
+			os.width(10);
+			os << position;
+			return os;
 		}
 	};
 #define PERMANENT_EMPLOYEE_TAKE_PARAMETRS double salary
@@ -138,6 +163,12 @@ public:
 		{
 			Employee::print(os) << " ";
 			return os << salary;
+		}
+		std::ofstream& print(std::ofstream& os)const
+		{
+			Employee::print(os) << " ";
+			os << salary;
+			return os;
 		}
 	};
 #define HOURLY_EMPLOYEE_TAKE_PARAMETERS double rate, int hours
@@ -184,8 +215,27 @@ public:
 		std::ostream& print(std::ostream& os)const
 		{
 			Employee::print(os) << " ";
-			return os << "тариф:" << rate << ", отработано:" << hours << "часов," << " итого:" << get_salary();
+			os << "тариф:";
+			os.width(10);
+			os << right;
+			os << rate;
+			os << ", отработано:";	
+			os.width(3);
+			os << hours << "часов," << " итого:" << get_salary();
 
+			return os;
+		}
+		std::ofstream& print(std::ofstream& os)const
+		{
+			Employee::print(os) << " ";			
+			os.width(3);
+			os << right;
+			os.width(2);
+			os << rate;			
+			os.width(8);
+			os << hours;
+
+			return os;
 		}
 	};
 
@@ -218,7 +268,8 @@ int main()
 	{
 		fout.width(25);
 		fout << left;
-		fout<< string(typeid(*department[i]).name()) + ":" << *department[i] << endl;
+		fout << string(typeid(*department[i]).name()) + ":";
+		fout << *department[i] << endl;
 	}
 	fout.close();
 	system("start notepad file.txt");
