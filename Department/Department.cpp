@@ -4,6 +4,10 @@
 #include <string>
 #include<fstream>
 using namespace std;
+using std::cin;
+using std::cout;
+using std::endl;
+
 #define HUMAN_TAKE_PARAMETRS const std::string& last_name, const std::string& first_name, unsigned int age
 #define HUMAN_GIVE_PARAMETRS last_name, first_name, age
 
@@ -78,6 +82,11 @@ public:
 		return os;
 
 	}
+	virtual ifstream& scan(ifstream& is)
+	{
+		is >> last_name >> first_name >> age;
+		return is;
+	}
 };
 	ostream& operator<<(ostream& os, const Human& obj)
 	{
@@ -86,6 +95,10 @@ public:
 	ofstream& operator<<(ofstream& os, const Human& obj)
 	{
 		return obj.print(os);
+	}
+	ifstream& operator>>(ifstream& is, Human& obj)
+	{
+		return obj.scan(is);
 	}
 #define EMPLOYEE_TAKE_PARAMETERS const std::string& position
 #define  EMPLOYEE_GIVE_PARAMETERS position
@@ -128,6 +141,12 @@ public:
 			os << position;
 			return os;
 		}
+		ifstream& scan(ifstream& is)
+		{
+			Human::scan(is);
+			is >> position;
+			return is;
+		}
 	};
 #define PERMANENT_EMPLOYEE_TAKE_PARAMETRS double salary
 #define PERMANENT_EMPLOYEE_GIVE_PARAMETRS  salary
@@ -169,6 +188,12 @@ public:
 			Employee::print(os) << " ";
 			os << salary;
 			return os;
+		}
+		ifstream& scan(ifstream& is)
+		{
+			Employee::scan(is);
+			is >> salary;
+			return is;
 		}
 	};
 #define HOURLY_EMPLOYEE_TAKE_PARAMETERS double rate, int hours
@@ -237,14 +262,24 @@ public:
 
 			return os;
 		}
+		ifstream& scan(ifstream& is)
+		{
+			Employee::scan(is);
+			is >> rate >> hours;
+			return is;
+		}
 	};
-
-
+	Employee* EmployeeFactory(const string& type)
+	{
+		if (type.find("PermanentEmployee")!=std::string::npos)return new PermanentEmployee("","",0,"",0);
+		if (type.find("HourlyEmployee")!=std::string::npos)return new HourlyEmployee("", "", 0, "", 0, 0);
+    }
+//#define SAVE_TO_FILE
 int main()
 {
-
 	setlocale(LC_ALL, "");
 
+#ifdef SAVE_TO_FILE	
 	Employee* department[] =
 	{
 		new PermanentEmployee("Rosenberg","Ken",30,"Lawyer",2000),
@@ -263,7 +298,8 @@ int main()
 	cout << "\n-----------------------------\n";
 	cout << "Общая зарплата всего отдела:" << total_salary << endl;
 	cout << "\n-----------------------------\n";
-	ofstream fout("file.txt",ios::in|ios::out);
+
+	ofstream fout("file.txt", ios::in | ios::out);
 	for (int i = 0; i < sizeof(department) / sizeof(Employee*); i++)
 	{
 		fout.width(25);
@@ -278,4 +314,48 @@ int main()
 	{
 		delete department[i];
 	}
+#endif //SAVE_TO_FILE	
+
+	Employee** department = nullptr;
+	int n = 0;
+	//cout << n << endl;
+
+	ifstream fin("file.txt");
+	if (fin.is_open())
+	{// Определяем количество записей в файл
+		std::string employee_type;
+		for (; !fin.eof(); n++)
+		{
+			std::getline(fin, employee_type);
+		}
+		// Выделяем память под массив
+		department = new Employee* [n] {};
+		//Возвращаем курсор в начало файла:
+		//cout << fin.tellg() << endl;
+		fin.clear();//очищаем поток
+		fin.seekg(0);//Задаем расположение курсора
+		//cout << fin.tellg() << endl;
+		//Загружаем данные  из файла в массив:
+		for (int i = 0; i < n; i++)
+		{
+			std::getline(fin, employee_type, ':');
+			department[i] = EmployeeFactory(employee_type);
+			fin >> *department[i];
+		}
+	}
+	else
+	{
+		cerr << "Error:file not found" << endl;
+	}
+	for (int i = 0; i < n; i++)
+	{
+		cout << *department[i]<<endl;
+	}
+	for (int i = 0; i < n; i++)
+	{
+		delete[] department[i];
+	}
+	delete[]department;
+	fin.close();
+	
 }
